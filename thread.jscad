@@ -1,15 +1,15 @@
 function getParameterDefinitions(){
 	return [
-		{name:'majorDiameter',  caption:'major diameter:',	type:'float',initial:59,	min:0.1,max:4200, step:0.1},
-		{name:'pitch',          caption:'pitch:',           type:'float',initial:2.5,	min:0.1,max:420,  step:0.1},
-		{name:'height',         caption:'height:',          type:'float',initial:20,	min:0.1,max:4200, step:0.1},
-		{name:'holeDiameter',   caption:'hole diameter:',   type:'float',initial:50,	min:0,	max:420,  step:0.1},
-		{name:'res',            caption:'resolution:',      type:'int',  initial:64,	min:32,	max:360,  step:1}
+		{name:'majorDiameter',  caption:'major diameter:',	type:'float',initial:59,	min:0.1,max:4200,step:0.1},
+		{name:'pitch',		caption:'pitch:',		type:'float',initial:2.5,	min:0.1,max:420, step:0.1},
+		{name:'height',		caption:'height:',		type:'float',initial:20,	min:0.1,max:4200, step:0.1},
+		{name:'holeDiameter',	caption:'hole diameter:',	type:'float',initial:50,	min:0,	max:420, step:0.1},
+		{name:'res',		caption:'resolution:',		type:'int',  initial:64,	min:32,	max:360, step:1}
 	];
 }
 
 function main(p){
-  return thread(majorDiameter=p.majorDiameter, pitch=p.pitch, height=p.height, holeDiameter=p.holeDiameter, resolution=p.res);
+	return thread(majorDiameter=p.majorDiameter, pitch=p.pitch, height=p.height, holeDiameter=p.holeDiameter, resolution=p.res);
 }
 
 /**
@@ -24,10 +24,10 @@ function main(p){
  * @link https://github.com/foxos42/parametric-thread
  *
  * @param {float}	[majorDiameter=47]	Dmaj -> outer Diameter of the thread -> Tolarance is made @ the external thread so choose it sligly smaler.
- * @param {float}	[pitch=2]			      P -> Pitch is the distance from the crest of one thread to the next.
- * @param {float}	[height=19]			    Height of the whole thread.
- * @param {float}	[holeDiameter=39]	  Insite hole to make it lighter or to let water flow through it. Set it to 0 if you do not want a hole.
- * @param {float}	[resolution=47]		  The resolution option determines the number of segments to create particular shapes.
+ * @param {float}	[pitch=2]		P -> Pitch is the distance from the crest of one thread to the next.
+ * @param {float}	[height=19]		Height of the whole thread.
+ * @param {float}	[holeDiameter=39]	Insite hole to make it lighter or to let water flow through it. Set it to 0 if you do not want a hole.
+ * @param {float}	[resolution=47]		The resolution option determines the number of segments to create particular shapes.
  * 
  * @return {object} Shape of a thread.
  */
@@ -41,8 +41,8 @@ function thread(majorDiameter=47, pitch=1.5, height=19, holeDiameter=39, resolut
 	var vshapeFlankWidth = (pitch - pitch/4 - pitch/8)/2;
 	
 	var hex = CSG.Polygon.createFromPoints([
-			[0,                                 0,	0],
-			[0,                                 0,	2*vshapeFlankWidth+truncatedWidthTop],
+			[0,					0,	0],
+			[0,					0,	2*vshapeFlankWidth+truncatedWidthTop],
 			[majorDiameter/2-minimalDiameter/2,	0,	vshapeFlankWidth+truncatedWidthTop],
 			[majorDiameter/2-minimalDiameter/2,	0,	vshapeFlankWidth]
 	]);
