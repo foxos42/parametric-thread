@@ -1,15 +1,16 @@
 function getParameterDefinitions(){
 	return [
-		{name:'majorDiameter',  caption:'major diameter:',	type:'float',initial:59,	min:0.1,max:4200,step:0.1},
-		{name:'pitch',		caption:'pitch:',		type:'float',initial:2.5,	min:0.1,max:420, step:0.1},
-		{name:'height',		caption:'height:',		type:'float',initial:20,	min:0.1,max:4200, step:0.1},
-		{name:'holeDiameter',	caption:'hole diameter:',	type:'float',initial:50,	min:0,	max:420, step:0.1},
-		{name:'res',		caption:'resolution:',		type:'int',  initial:64,	min:32,	max:360, step:1}
+		{name:'majorDiameter',  caption:'major diameter:',	type:'float',initial:59,	min:0.1,max:4200,step:0.1	},
+		{name:'pitch',		caption:'pitch:',		type:'float',initial:2.5,	min:0.1,max:420, step:0.1	},
+		{name:'height',		caption:'height:',		type:'float',initial:20,	min:0.1,max:4200, step:0.1	},
+		{name:'holeDiameter',	caption:'hole diameter:',	type:'float',initial:50,	min:0,	max:420, step:0.1	},
+		{name:'counterpart',	caption:'counterpart:',		type:'checkbox',checked:false					},
+		{name:'res',		caption:'resolution:',		type:'int',  initial:64,	min:32,	max:360, step:1		}
 	];
 }
 
 function main(p){
-	return thread(majorDiameter=p.majorDiameter, pitch=p.pitch, height=p.height, holeDiameter=p.holeDiameter, resolution=p.res);
+	return thread(majorDiameter=p.majorDiameter, pitch=p.pitch, height=p.height, holeDiameter=p.holeDiameter, counterpart=p.counterpart, resolution=p.res);
 }
 
 /**
@@ -27,11 +28,12 @@ function main(p){
  * @param {float}	[pitch=2]		P -> Pitch is the distance from the crest of one thread to the next.
  * @param {float}	[height=19]		Height of the whole thread.
  * @param {float}	[holeDiameter=39]	Insite hole to make it lighter or to let water flow through it. Set it to 0 if you do not want a hole.
+ * @param {float}	[counterpart=false]	Generate the exact counterpart of the thread. Increase major diameter to get a leeway.
  * @param {float}	[resolution=47]		The resolution option determines the number of segments to create particular shapes.
  * 
  * @return {object} Shape of a thread.
  */
-function thread(majorDiameter=47, pitch=1.5, height=19, holeDiameter=39, resolution=64){
+function thread(majorDiameter=47, pitch=1.5, height=19, holeDiameter=39, counterpart=false, resolution=64){
 
 	var threadAngle = 90; //60=ISO, 90=3d printer friendly
 	var vshapeHeight = (1/tan(threadAngle/2)) * pitch; //H
@@ -49,6 +51,11 @@ function thread(majorDiameter=47, pitch=1.5, height=19, holeDiameter=39, resolut
 	
 	var sliceEveryDegrees = 360/resolution;
 	var loops = (height-pitch+truncatedWidthBottom)/pitch;
+	var threadZero = 0;
+	if(counterpart){ //counterpart mods
+	    loops = loops+2;
+	    threadZero = -pitch;
+	}
 	var thread = hex.solidFromSlices({
 		numslices: (360 * loops / sliceEveryDegrees) + 1,
 		loop:false,
@@ -62,14 +69,21 @@ function thread(majorDiameter=47, pitch=1.5, height=19, holeDiameter=39, resolut
 	});
 
 	thread = union(
-		thread.translate([minimalDiameter/2,0,0]),
+		thread.translate([minimalDiameter/2,0,threadZero]),
 		cylinder({d: minimalDiameter, h: height, fn: resolution})
 	);
 	
-	if(holeDiameter!==0){
+	if(holeDiameter!==0 && counterpart===false){
 		thread = difference(
 			thread,
 			cylinder({d: holeDiameter, h: height, fn: resolution})
+		);
+	}
+	
+	if(counterpart){//cut thread from cylinder for counterpart
+		thread = difference(
+			cylinder({d: majorDiameter+vshapeHeight*2, h: height, fn: resolution}),
+			thread
 		);
 	}
 	
